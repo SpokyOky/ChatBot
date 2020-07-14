@@ -1,12 +1,24 @@
 import telebot
 import configparser
+import json
 
 cfg = configparser.ConfigParser()
 cfg.read('config.ini')
 bot = telebot.TeleBot(cfg['telegram']['token'])
 
-business_list = ['delo1', 'delo2', 'delo3', 'delo4', 'delo5']
+business_list = []
+with open('business_list.json') as input_file:
+    data = json.load(input_file)
+    for biz in data['business_list']:
+        business_list.append(biz)
+
 change_index = -12312
+
+
+def update_file():
+    with open('business_list.json', 'w') as update_file:
+        json.dump(business_list, update_file)
+
 
 
 @bot.message_handler(commands=['start'])
@@ -33,6 +45,7 @@ def add_message(message):
 def get_add_business(message):
     global business_list
     business_list.append(str(message.text))
+    update_file()
     bot.send_message(message.chat.id, 'Дело записано')
 
 
@@ -52,6 +65,7 @@ def get_delete_index(message):
             continue
     try:
         business_list.pop(index - 1)
+        update_file()
         bot.send_message(message.chat.id, 'Удалено')
     except Exception:
         bot.send_message(message.chat.id, 'Дела по такому номеру не найдено')
@@ -94,6 +108,7 @@ def get_change_instructions(message):
     except Exception:
         business_list[change_index] = message.text
         bot.send_message(message.chat.id, 'Название изменено')
+    update_file()
 
 
 @bot.message_handler(commands=['view'])
