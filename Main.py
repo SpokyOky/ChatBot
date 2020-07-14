@@ -6,23 +6,32 @@ cfg = configparser.ConfigParser()
 cfg.read('config.ini')
 bot = telebot.TeleBot(cfg['telegram']['token'])
 
+name = ''
+
 business_list = []
-with open('business_list.json') as input_file:
-    data = json.load(input_file)
-    for biz in data:
-        business_list.append(biz)
 
 change_index = -12312
 
 
 def update_file():
-    with open('business_list.json', 'w') as update_business:
+    with open(name + '_business_list.json', 'w') as update_business:
         json.dump(business_list, update_business)
 
 
 @bot.message_handler(commands=['start'])
 def start_message(message):
-    bot.send_message(message.chat.id, 'Салам дядя')
+    global name
+    name = message.from_user.first_name
+    output = 'Салам ' + name
+    try:
+        with open(name + '_business_list.json') as input_file:
+            data = json.load(input_file)
+            for biz in data:
+                business_list.append(biz)
+        output += '\n Список дел удочно загружен'
+    except Exception:
+        output += '\n Не удалось загрузить ваши дела, создание нового списка'
+    bot.send_message(message.chat.id, output)
 
 
 @bot.message_handler(commands=['help'])
