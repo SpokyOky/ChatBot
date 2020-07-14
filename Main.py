@@ -9,16 +9,15 @@ bot = telebot.TeleBot(cfg['telegram']['token'])
 business_list = []
 with open('business_list.json') as input_file:
     data = json.load(input_file)
-    for biz in data['business_list']:
+    for biz in data:
         business_list.append(biz)
 
 change_index = -12312
 
 
 def update_file():
-    with open('business_list.json', 'w') as update_file:
-        json.dump(business_list, update_file)
-
+    with open('business_list.json', 'w') as update_business:
+        json.dump(business_list, update_business)
 
 
 @bot.message_handler(commands=['start'])
